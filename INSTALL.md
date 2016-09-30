@@ -3,7 +3,7 @@
 ```
     virtualenv -p python3.5 venv
     source venv/bin/activate
-    pip install requirements.pip
+    pip install -r requirements.pip
 ```
 
 # Run the API
