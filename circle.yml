@@ -1,3 +1,21 @@
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/5a222abcdb7568c04a3a
+
+general:
+  build_dir: trashradar-api
+
+machine:
+  services:
+    - redis
+
+dependencies:
+  pre:
+    - pip install coverage
+    - pip install codecov
+
+test:
+  override:
+    - mkdir -p $CIRCLE_TEST_REPORTS/trashradar-api
+    - coverage run ./manage.py test --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/trashradar-api/xunittest.xml
+    - codecov

@@ -1,0 +1,16 @@
+coverage:
+  notify:
+    gitter:
+      default:
+        url: "https://webhooks.gitter.im/e/5a222abcdb7568c04a3a"
+        threshold: 1%
+  status:
+    project:
+      default:
+        paths: "!*/admin*"
+    patch:
+      default:
+        paths: "!*/admin*"
+fixes:
+  - "::trashradar-api/"
+comment: false
