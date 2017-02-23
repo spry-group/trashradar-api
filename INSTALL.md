@@ -15,4 +15,4 @@ Set the environment variables in `trashradar-api/trashradar/.env`.
 ### Run the tests
 
         cd trashradar-api
-        py.test --ds=trashradar.settings -x accounts/tests.py  
+        python manage test  
