@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_nose',
     # apps
     'accounts',
 ]
@@ -90,6 +91,8 @@ TEMPLATES = [
         },
     },
 ]
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 WSGI_APPLICATION = 'trashradar.wsgi.application'
 
