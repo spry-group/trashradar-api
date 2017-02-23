@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django_nose',
     # apps
     'accounts',
+    'complaints',
 ]
 
 MIDDLEWARE_CLASSES = [
