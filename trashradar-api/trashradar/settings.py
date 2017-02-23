@@ -16,7 +16,7 @@ root = environ.Path(__file__) - 1
 
 env = environ.Env(
     DEBUG=(bool, False),
-    SECRET_KEY=(str, ''),
+    SECRET_KEY=(str, 'djangoSecretKey'),
     ALLOWED_HOSTS=(list, ['*']),
     BROKER_URL=(str, 'redis://localhost:6379'),
     DATABASE_URL=(str, 'psql://trashradar:HS8J12MQW~975NS@localhost/trashradar'),
@@ -24,9 +24,9 @@ env = environ.Env(
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_URL=(str, 'smtp+tls://admin@example.org:password@smtp.gmail.com:587/'),
     DEFAULT_FROM_EMAIL=(str, 'admin@example.org'),
-    SPARKPOST_API_KEY=(str, ''),
+    SPARKPOST_API_KEY=(str, 'sparkPostApiKey'),
     API_HOST=(str, 'https://api.host.com'),
-    STRIPE_API_KEY=(str, ''),
+    STRIPE_API_KEY=(str, 'stripeApiKey'),
 )
 
 environ.Env.read_env()
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_nose',
     # apps
     'accounts',
 ]
@@ -90,6 +91,8 @@ TEMPLATES = [
         },
     },
 ]
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 WSGI_APPLICATION = 'trashradar.wsgi.application'
 
