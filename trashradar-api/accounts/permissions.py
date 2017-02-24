@@ -24,3 +24,18 @@ class IsAdminOrAccountOwner(permissions.BasePermission):
                 return True
             return account.username == request.user.username
         return False
+
+
+class IsReadOnly(permissions.BasePermission):
+    """
+    Returns true if the request.user is owner of the account or Admin
+    """
+    def has_permission(self, request, view):
+        """
+        Returns true or false if the user has the permission
+        :param view: View set
+        :return: Boolean with the user permission
+        """
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return False
