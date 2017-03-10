@@ -3,12 +3,12 @@ version: "3"
 services:
   # a postgres container for providing database access.
   postgres:
-    image: sameersbn/postgresql:9.4-12
+    image: kartoza/postgis:9.5-2.2
     environment:
-      - PGPASSWORD=iKWMjsbqrbA!jqo
-      - DB_USER=trashradar
-      - DB_PASS=HS8J12MQW~975NS
-      - DB_NAME=trashradar
+      - POSTGRES_USER=trashradar
+      - POSTGRES_PASS=HS8J12MQW~975NS
+      - POSTGRES_DBNAME=trashradar
+      - ALLOW_IP_RANGE=0.0.0.0/0
     expose:
       - "5432"
     ports:

@@ -30,6 +30,7 @@ RUN \
     libjpeg-turbo-dev \
     python-dev \
     postgresql-dev \
+    libgdal-dev \
     zlib-dev && \
   ln -s /lib/libz.so.1 /usr/lib/ && \
   rm -rf /var/cache/apk/
