@@ -1,0 +1,13 @@
+[
+  {
+    "model": "complaints.entity",
+    "pk": 1,
+    "fields": {
+      "name": "Lorem Ipsum",
+      "twitter": "twitter_username",
+      "phone": "123-1234",
+      "template_message": "Clean the trash #test #development",
+      "created": "2017-02-23T23:37:58.977Z"
+    }
+  }
+]
