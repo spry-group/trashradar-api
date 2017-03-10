@@ -1,4 +1,4 @@
-import twitter
+from twitter import *
 from django.conf import settings
 
 
@@ -14,7 +14,7 @@ class Twitter(object):
         """
         Initialization of python-twitter
         """
-        self.api = twitter.Api(
+        self.api = Api(
             consumer_key=settings.CONSUMER_KEY,
             consumer_secret=settings.CONSUMER_SECRET,
             access_token_key=settings.ACCESS_TOKEN_KEY,
@@ -31,5 +31,5 @@ class Twitter(object):
         try:
             status = self.api.PostUpdate(message)
             return [status.id]
-        except twitter.TwitterError:
+        except TwitterError:
             return []
