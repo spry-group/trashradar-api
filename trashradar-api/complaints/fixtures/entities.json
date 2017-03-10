@@ -6,7 +6,7 @@
       "name": "Lorem Ipsum",
       "twitter": "twitter_username",
       "phone": "123-1234",
-      "message": "Clean the trash #test #development",
+      "template_message": "Clean the trash #test #development",
       "created": "2017-02-23T23:37:58.977Z"
     }
   }

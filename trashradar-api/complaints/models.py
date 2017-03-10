@@ -7,7 +7,7 @@ class Entity(models.Model):
         verbose_name_plural = 'Entities'
 
     name = models.CharField(max_length=200)
-    twitter = models.CharField(max_length=200)
+    twitter = models.CharField(max_length=20)
     phone = models.CharField(blank=True, max_length=20, null=True)
-    message = models.TextField()
+    template_message = models.TextField()
     created = models.DateTimeField(auto_now_add=True)

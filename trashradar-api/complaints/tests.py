@@ -21,7 +21,7 @@ class EntitiesTestCase(APITestCase):
             'name': 'New name',
             'twitter': 'newAccount',
             'phone': '987-654321',
-            'message': 'New message'
+            'template_message': 'New message'
         }
 
     def test_list_entities_unauthenticated(self):
@@ -38,7 +38,7 @@ class EntitiesTestCase(APITestCase):
         self.assertEqual(entity.name, returned_entity['name'], 'Name does not match')
         self.assertEqual(entity.twitter, returned_entity['twitter'], 'Twitter does not match')
         self.assertEqual(entity.phone, returned_entity['phone'], 'Phone does not match')
-        self.assertNotIn('message', returned_entity, 'Message is present on the result data')
+        self.assertNotIn('template_message', returned_entity, 'Message is present on the result data')
 
     def test_get_entity_unauthenticated(self):
         """Fetch specific entity"""
@@ -51,7 +51,7 @@ class EntitiesTestCase(APITestCase):
         self.assertEqual(entity.name, stored_data['name'], 'Name does not match')
         self.assertEqual(entity.twitter, stored_data['twitter'], 'Twitter does not match')
         self.assertEqual(entity.phone, stored_data['phone'], 'Phone does not match')
-        self.assertNotIn('message', stored_data, 'Message is present on the result data')
+        self.assertNotIn('template_message', stored_data, 'Message is present on the result data')
 
     def test_create_entity_unauthenticated(self):
         """Trying to create an entity being unauthenticated"""
