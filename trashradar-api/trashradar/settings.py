@@ -27,6 +27,10 @@ env = environ.Env(
     SPARKPOST_API_KEY=(str, 'sparkPostApiKey'),
     API_HOST=(str, 'https://api.host.com'),
     STRIPE_API_KEY=(str, 'stripeApiKey'),
+    CONSUMER_KEY=(str, 'consumerKey'),
+    CONSUMER_SECRET=(str, 'consumerSecret'),
+    ACCESS_TOKEN_KEY=(str, 'accessTokenKey'),
+    ACCESS_TOKEN_SECRET=(str, 'accessTokenSecret'),
 )
 
 environ.Env.read_env()
@@ -162,6 +166,12 @@ MEDIA_ROOT = public_root('media')
 MEDIA_URL = env('MEDIA_URL')
 STATIC_ROOT = public_root('static')
 STATIC_URL = env('STATIC_URL')
+
+# Twitter credentials
+CONSUMER_KEY = env('CONSUMER_KEY')
+CONSUMER_SECRET = env('CONSUMER_SECRET')
+ACCESS_TOKEN_KEY = env('ACCESS_TOKEN_KEY')
+ACCESS_TOKEN_SECRET = env('ACCESS_TOKEN_SECRET')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
