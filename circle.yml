@@ -19,3 +19,7 @@ test:
     - mkdir -p $CIRCLE_TEST_REPORTS/trashradar-api
     - coverage run ./manage.py test --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/trashradar-api/xunittest.xml
     - codecov
+
+database:
+  post:
+    - psql -c "CREATE EXTENSION postgis;" -d circle_test
