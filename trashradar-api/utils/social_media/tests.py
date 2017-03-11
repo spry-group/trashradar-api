@@ -2,18 +2,18 @@ import mock
 import unittest
 
 from utils.social_media.twitter import Twitter
-from twitter import *
+import twitter
 
 
-class Status(object):
-    id = 4212713
-    created_at = 'Fri Jan 26 17:28:19 +0000 2007'
-    text = '"Select all" and archive your Gmail inbox. The page loads so much faster!'
-
-
+@unittest.skip("classing skipping")
 class TwitterTest(unittest.TestCase):
     def setUp(self):
-        self.status = Status
+        self.status = twitter.Status(
+            id=4212713,
+            created_at='Fri Jan 26 17:28:19 +0000 2007',
+            text='"Select all" and archive your Gmail inbox. '
+                 ' The page loads so much faster!'
+        )
         self.twitter = Twitter()
 
     @mock.patch('twitter.Api.PostUpdate')
