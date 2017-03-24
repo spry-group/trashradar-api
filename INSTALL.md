@@ -6,6 +6,18 @@
     pip install -r requirements.pip
 ```
 
+## On Mac
+
+```
+    brew install gdal
+```
+
+## On linux
+
+```
+    sudo apt-get install libgdal-dev
+```
+
 ## Test
 
 ### Configure the environment

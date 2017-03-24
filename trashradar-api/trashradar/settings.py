@@ -19,7 +19,7 @@ env = environ.Env(
     SECRET_KEY=(str, 'djangoSecretKey'),
     ALLOWED_HOSTS=(list, ['*']),
     BROKER_URL=(str, 'redis://localhost:6379'),
-    DATABASE_URL=(str, 'psql://trashradar:HS8J12MQW~975NS@localhost/trashradar'),
+    DATABASE_URL=(str, 'postgis://trashradar:HS8J12MQW~975NS@localhost/postgres'),
     MEDIA_URL=(str, '/media/'), STATIC_URL=(str, '/static/'),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_URL=(str, 'smtp+tls://admin@example.org:password@smtp.gmail.com:587/'),
