@@ -5,9 +5,27 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.models import Account
-from complaints.models import Entity
+from complaints.models import Complaint, Entity
 
 faker = FakerFactory.create()
+
+
+class ComplaintsTestCase(APITestCase):
+
+    fixtures = ['complaints', 'entities', 'accounts']
+
+    def test_list_entities_unauthenticated(self):
+        """Fetch all the complaints"""
+        response = self.client.get('/api/v1/complaints')
+        stored_data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response from /api/1/complaints has 200 Ok.')
+
+        returned_complaint = stored_data['results'][0]
+        self.assertIn('id', returned_complaint, 'Id is not present on the result data')
+        complaint = Complaint.objects.get(pk=returned_complaint['id'])
+
+        self.assertEqual(complaint.counter, returned_complaint['counter'], 'Name does not match')
 
 
 class EntitiesTestCase(APITestCase):

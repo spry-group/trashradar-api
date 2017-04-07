@@ -17,25 +17,17 @@ class Entity(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
-class Event(models.Model):
-    class Meta:
-        verbose_name = 'Event'
-        verbose_name_plural = 'Events'
-
-    location = PointField()
-    user = models.ForeignKey(Account)
-    pictures = models.ImageField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    confirm = models.BooleanField()
-
-
 class Complaint(models.Model):
     class Meta:
         verbose_name = 'Complaint'
         verbose_name_plural = 'Complaints'
 
     owner = models.ForeignKey(Account)
+    entity = models.ForeignKey(Entity)
+    location = PointField()
+    picture = models.ImageField()
+    counter = models.IntegerField(default=0)
+    current_state = models.IntegerField(default=0)
     tweet_status = ArrayField(models.IntegerField())
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
