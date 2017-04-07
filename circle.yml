@@ -6,6 +6,8 @@ general:
   build_dir: trashradar-api
 
 machine:
+  python:
+    version: 3.5.2
   services:
     - redis
 

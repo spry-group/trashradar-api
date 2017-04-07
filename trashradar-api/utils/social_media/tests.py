@@ -2,13 +2,12 @@ import mock
 import unittest
 
 from utils.social_media.twitter import Twitter
-import twitter
+from twitter import Status, TwitterError
 
 
-@unittest.skip("classing skipping")
 class TwitterTest(unittest.TestCase):
     def setUp(self):
-        self.status = twitter.Status(
+        self.status = Status(
             id=4212713,
             created_at='Fri Jan 26 17:28:19 +0000 2007',
             text='"Select all" and archive your Gmail inbox. '
@@ -32,7 +31,7 @@ class TwitterTest(unittest.TestCase):
         """
         If the tweet has more than 140 chars will raise an exception
         """
-        twitter_mock.side_effect = twitter.TwitterError
+        twitter_mock.side_effect = TwitterError
         status_list = []
 
         response = self.twitter.tweet(
