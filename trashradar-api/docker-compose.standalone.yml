@@ -1,0 +1,21 @@
+version: "3"
+
+# The standalone configuration stands a locally built instance of the API
+# with required supporting services. It is good for experimenting with the
+# API and basic testing.
+
+# build the django container for testing.
+services:
+  django:
+    build: .
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgis://trashradar:HS8J12MQW~975NS@postgres/postgres
+    ports:
+      - "8000:80"
+    expose:
+      - "80"
+    entrypoint: gunicorn trashradar.wsgi:application -w 4 -b 0.0.0.0:80 --chdir=/code --timeout 120
+    links:
+      - 'postgres:postgres'
+      - 'redis:redis'
