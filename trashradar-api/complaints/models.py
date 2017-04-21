@@ -22,12 +22,17 @@ class Complaint(models.Model):
         verbose_name = 'Complaint'
         verbose_name_plural = 'Complaints'
 
+    COMPLAINT_STATES = (
+        (1, 'Active'),
+        (2, 'Clean'),
+    )
+
     owner = models.ForeignKey(Account)
     entity = models.ForeignKey(Entity)
     location = PointField()
     picture = models.ImageField()
     counter = models.IntegerField(default=0)
-    current_state = models.IntegerField(default=0)
+    current_state = models.IntegerField(choices=COMPLAINT_STATES, default=1)
     tweet_status = ArrayField(models.IntegerField())
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -18,6 +18,13 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         complaint.save()
         return Response({}, status.HTTP_204_NO_CONTENT)
 
+    @detail_route(methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def clean(self, request, pk):
+        complaint = self.get_object()
+        complaint.current_state = 2
+        complaint.save()
+        return Response({}, status.HTTP_204_NO_CONTENT)
+
 
 class EntityViewSet(viewsets.ModelViewSet):
     queryset = models.Entity.objects.all()
