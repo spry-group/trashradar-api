@@ -27,6 +27,52 @@ class ComplaintsTestCase(APITestCase):
 
         self.assertEqual(complaint.counter, returned_complaint['counter'], 'Name does not match')
 
+    def test_confirm_place_unauthenticated(self):
+        """Trying to confirm a place being unauthenticated"""
+        complaint = Complaint.objects.first()
+        response = self.client.post('/api/v1/complaints/{}/confirm'.format(complaint.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
+                         'response from /api/1/complaints is not 401 Unauthorized.')
+
+    def test_confirm_place_authenticated(self):
+        """Confirm a place being authenticated"""
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        complaint = Complaint.objects.first()
+        response = self.client.post('/api/v1/complaints/{}/confirm'.format(complaint.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT,
+                         'response from /api/1/complaints is not 204 No Content.')
+
+        updated_complaint = Complaint.objects.get(pk=complaint.pk)
+        self.assertGreater(updated_complaint.counter, complaint.counter, 'The counter of the complaint is not updated')
+        self.assertEqual(complaint.current_state, 1, 'The state of the complaint should be Active')
+
+    def test_clean_place_unauthenticated(self):
+        """Trying to clean a place being unauthenticated"""
+        complaint = Complaint.objects.first()
+        response = self.client.post('/api/v1/complaints/{}/clean'.format(complaint.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
+                         'response from /api/1/complaints is not 401 Unauthorized.')
+
+    def test_clean_place_authenticated(self):
+        """Clean a place being authenticated"""
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        complaint = Complaint.objects.first()
+        response = self.client.post('/api/v1/complaints/{}/clean'.format(complaint.pk))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT,
+                         'response from /api/1/complaints is not 204 No Content.')
+
+        updated_complaint = Complaint.objects.get(pk=complaint.pk)
+        self.assertEqual(complaint.counter, updated_complaint.counter, 'The counter of the complaint is different')
+        self.assertNotEqual(complaint.current_state, 2, 'The state of the complaint should be Clean')
+
 
 class EntitiesTestCase(APITestCase):
     """
