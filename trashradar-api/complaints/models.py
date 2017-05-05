@@ -16,6 +16,12 @@ class Entity(models.Model):
     template_message = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        """
+        :return: Entity name
+        """
+        return self.name
+
 
 class Complaint(models.Model):
     class Meta:
@@ -23,7 +29,7 @@ class Complaint(models.Model):
         verbose_name_plural = 'Complaints'
 
     COMPLAINT_STATES = (
-        (1, 'Active'),
+        (1, 'Dirty'),
         (2, 'Clean'),
     )
 
@@ -33,6 +39,7 @@ class Complaint(models.Model):
     picture = models.ImageField()
     counter = models.IntegerField(default=0)
     current_state = models.IntegerField(choices=COMPLAINT_STATES, default=1)
+    # List of tweet ids sent in the trashradar twitter account using the social_media util
     tweet_status = ArrayField(models.IntegerField())
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
