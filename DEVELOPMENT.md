@@ -13,7 +13,7 @@ initiate a completely new database.
 
 To run a standalone project you can use inside trashradar-api folder:
  
-        docker-compose -f docker-compose.yml up
+        docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up
 
 If you need to run any command, you can use:
 
