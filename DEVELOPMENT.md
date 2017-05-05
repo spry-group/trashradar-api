@@ -6,14 +6,14 @@ and postgres allowing you to run django on your localhost. Use this when working
 You should generally use `up` and `stop` for day to day development. This is the least overhead approach to starting and
 stopping the environment.
 
-The data volume for postgres is persistent. You will need to remove the volume use `docker volume rm` if you want to 
+The data volume for postgres is persistent. You will need to remove the volume running `docker volume rm` if you want to 
 initiate a completely new database.
 
 ## Standalone
 
 To run a standalone project you can use inside trashradar-api folder:
  
-        docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up
+        docker-compose -f docker-compose.yml up
 
 If you need to run any command, you can use:
 
