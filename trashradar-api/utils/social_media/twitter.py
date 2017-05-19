@@ -1,4 +1,6 @@
 import twitter
+from tweetsplitter import split_tweet
+
 from django.conf import settings
 
 
@@ -28,8 +30,11 @@ class Twitter(object):
         :param message: <string> Text to be submitted on Twitter
         :return: <array> Ids of the posted tweet
         """
-        try:
-            status = self.api.PostUpdate(message)
-            return [status.id]
-        except twitter.TwitterError:
-            return []
+        statuses = []
+        for tweet_content in split_tweet(message):
+            try:
+                status = self.api.PostUpdate(tweet_content)
+                statuses.append(status.id)
+            except twitter.TwitterError:
+                pass
+        return statuses
