@@ -27,15 +27,15 @@ class TwitterTest(unittest.TestCase):
         self.assertEqual(status_list, response, 'The status response is different')
 
     @mock.patch('twitter.Api.PostUpdate')
-    def test_status_list_error(self, twitter_mock):
+    def test_status_list_more_than_140_chars(self, twitter_mock):
         """
-        If the tweet has more than 140 chars will raise an exception
+        If the tweet has more than 140 chars will be split in more tweets and return
+        more than one status
         """
-        twitter_mock.side_effect = TwitterError
-        status_list = []
+        twitter_mock.return_value = self.status
 
         response = self.twitter.tweet(
             '"Select all" and archive your Gmail inbox. The page loads so much faster!'
             '"Select all" and archive your Gmail inbox. The page loads so much faster!'
         )
-        self.assertEqual(status_list, response, 'The status response is different')
+        self.assertGreater(len(response), 1, 'The response array has less or equal than one status')
