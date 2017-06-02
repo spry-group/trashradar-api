@@ -1,9 +1,11 @@
 from rest_framework import serializers
+from rest_framework_gis.serializers import GeoModelSerializer
 
 from complaints.models import Complaint, Entity
 
 
-class ComplaintSerializer(serializers.ModelSerializer):
+
+class ComplaintSerializer(GeoModelSerializer):
     class Meta:
         model = Complaint
         fields = (
