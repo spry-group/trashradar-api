@@ -29,7 +29,13 @@ class ComplaintsTestCase(APITestCase):
         self.complaint = {
             'owner': 1,
             'entity': 1,
-            'location': 'SRID=4326;POINT (12 11)',
+            'location': json.dumps({
+                'type': 'Point',
+                'coordinates': [
+                    11.266675,
+                    -74.189093
+                ]
+            }),
             'picture': self.tmp_picture,
             'tweet_status': [1]
         }
