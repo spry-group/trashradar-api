@@ -2,6 +2,7 @@ import json
 import mock
 from io import BytesIO
 from PIL import Image
+from django.contrib.gis.geos import Point
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Factory as FakerFactory
@@ -84,6 +85,13 @@ class ComplaintsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED,
                          'response from /api/1/complaints is not 201.')
 
+        complaint = Complaint.objects.get(pk=response.data['id'])
+        self.assertIn('location', response.data, 'Location is not being returned.')
+        location = response.data['location']
+        self.assertEqual(type(complaint.location), Point)
+        for coordinate in location['coordinates']:
+            self.assertIn(coordinate, complaint.location.coords)
+
     @mock.patch('cloudinary.uploader.upload')
     def test_create_complaint_invalid_cloudinary(self, cloudinary_mock):
         """Trying to create a complaint being authenticated, but receiving an error from cloudinary"""
@@ -93,6 +101,18 @@ class ComplaintsTestCase(APITestCase):
         self.client.force_login(authenticated_user)
 
         response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'response from /api/1/complaints is not 400.')
+
+    def test_create_complaint_invalid_point(self):
+        """Trying to create a complaint with an invalid point"""
+        url = '/api/v1/complaints'
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        complaint = self.complaint
+        del complaint['location']
+        response = self.client.post(url, complaint)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
                          'response from /api/1/complaints is not 400.')
 
