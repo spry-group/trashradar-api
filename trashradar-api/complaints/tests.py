@@ -1,4 +1,5 @@
 import json
+import mock
 from io import BytesIO
 from PIL import Image
 
@@ -32,6 +33,15 @@ class ComplaintsTestCase(APITestCase):
             'picture': self.tmp_picture,
             'tweet_status': [1]
         }
+        self.cloudinary_image = {
+            'public_id': 'x2ojoy5hc4x78y3ida1f', 'version': 1496421068,
+            'signature': '8aa8f1031a19f15023548967ede58b5c7ba94fd2', 'width': 1, 'height': 1,
+            'format': 'jpg', 'resource_type': 'image', 'created_at': '2017-06-02T16:31:08Z',
+            'tags': [], 'bytes': 631, 'type': 'upload', 'etag': '2775f338c469b19c338c4e0ea410271c',
+            'url': 'http://res.cloudinary.com/dsxvepxmc/image/upload/v1496421068/x2ojoy5hc4x78y3ida1f.jpg',
+            'secure_url': 'https://res.cloudinary.com/dsxvepxmc/image/upload/v1496421068/x2ojoy5hc4x78y3ida1f.jpg',
+            'original_filename': 'logo'
+        }
 
     def tearDown(self):
         self.tmp_picture.close()
@@ -56,8 +66,10 @@ class ComplaintsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from /api/1/complaints is not 401 Unauthorized.')
 
-    def test_create_complaint_authenticated(self):
-        """Trying to create a complaint being authenticated"""
+    @mock.patch('cloudinary.uploader.upload')
+    def test_create_complaint_authenticated(self, cloudinary_mock):
+        """Creating a complaint being authenticated"""
+        cloudinary_mock.return_value = self.cloudinary_image
         url = '/api/v1/complaints'
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
@@ -65,6 +77,18 @@ class ComplaintsTestCase(APITestCase):
         response = self.client.post(url, self.complaint)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED,
                          'response from /api/1/complaints is not 201.')
+
+    @mock.patch('cloudinary.uploader.upload')
+    def test_create_complaint_invalid_cloudinary(self, cloudinary_mock):
+        """Trying to create a complaint being authenticated, but receiving an error from cloudinary"""
+        cloudinary_mock.return_value = {}
+        url = '/api/v1/complaints'
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'response from /api/1/complaints is not 400.')
 
     def test_confirm_place_unauthenticated(self):
         """Trying to confirm a place being unauthenticated"""
