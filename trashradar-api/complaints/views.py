@@ -28,9 +28,15 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             saved_image = cloudinary.uploader.upload(request.data.get('picture'))
             url = saved_image.get('url', None)
             if url:
-                picture = url
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                serializer.picture = url
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    'status': 'Bad Request',
+                    'message': 'Image was not uploaded to cloudinary.',
+                    'errors': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'status': 'Bad Request',

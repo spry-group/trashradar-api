@@ -61,7 +61,7 @@ class ComplaintsTestCase(APITestCase):
         url = '/api/v1/complaints'
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
-        
+
         response = self.client.post(url, self.complaint)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED,
                          'response from /api/1/complaints is not 201.')
