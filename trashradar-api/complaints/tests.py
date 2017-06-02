@@ -1,5 +1,8 @@
 import json
+from io import BytesIO
+from PIL import Image
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Factory as FakerFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,12 +12,31 @@ from complaints.models import Complaint, Entity
 
 faker = FakerFactory.create()
 
+image_buffer = BytesIO()
+test_image = Image.new('RGB', (1, 1))
+test_image.save(image_buffer, 'jpeg')
+image_buffer.seek(0)
+image_string = image_buffer.read()
+
 
 class ComplaintsTestCase(APITestCase):
 
     fixtures = ['complaints', 'entities', 'accounts']
 
-    def test_list_entities_unauthenticated(self):
+    def setUp(self):
+        self.tmp_picture = SimpleUploadedFile(name='logo.jpg', content=image_string, content_type='image/jpeg')
+        self.complaint = {
+            'owner': 1,
+            'entity': 1,
+            'location': 'SRID=4326;POINT (12 11)',
+            'picture': self.tmp_picture,
+            'tweet_status': [1]
+        }
+
+    def tearDown(self):
+        self.tmp_picture.close()
+
+    def test_list_complaints_unauthenticated(self):
         """Fetch all the complaints"""
         response = self.client.get('/api/v1/complaints')
         stored_data = json.loads(response.content.decode('utf-8'))
@@ -26,6 +48,23 @@ class ComplaintsTestCase(APITestCase):
         complaint = Complaint.objects.get(pk=returned_complaint['id'])
 
         self.assertEqual(complaint.counter, returned_complaint['counter'], 'Name does not match')
+
+    def test_create_complaint_unauthenticated(self):
+        """Trying to create a complaint being unauthenticated"""
+        url = '/api/v1/complaints'
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
+                         'response from /api/1/complaints is not 401 Unauthorized.')
+
+    def test_create_complaint_authenticated(self):
+        """Trying to create a complaint being authenticated"""
+        url = '/api/v1/complaints'
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED,
+                         'response from /api/1/complaints is not 201.')
 
     def test_confirm_place_unauthenticated(self):
         """Trying to confirm a place being unauthenticated"""
@@ -121,8 +160,7 @@ class EntitiesTestCase(APITestCase):
         """Trying to create an entity being unauthenticated"""
         response = self.client.post(
             '/api/v1/entities',
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from /api/1/entities has 401 Unauthorized.')
@@ -134,8 +172,7 @@ class EntitiesTestCase(APITestCase):
 
         response = self.client.post(
             '/api/v1/entities',
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
@@ -146,8 +183,7 @@ class EntitiesTestCase(APITestCase):
         entity = Entity.objects.first()
         response = self.client.put(
             '/api/v1/entities/{}'.format(entity.pk),
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from /api/1/entities has 401 Unauthorized.')
@@ -160,8 +196,7 @@ class EntitiesTestCase(APITestCase):
         entity = Entity.objects.first()
         response = self.client.put(
             '/api/v1/entities/{}'.format(entity.pk),
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
