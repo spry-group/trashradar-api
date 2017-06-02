@@ -7,8 +7,11 @@ class ComplaintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
         fields = (
-            'id', 'owner', 'entity', 'location', 'picture', 'counter', 'current_state'
+            'id', 'owner', 'location', 'entity', 'picture', 'counter', 'current_state', 'tweet_status'
         )
+        extra_kwargs = {
+            'picture': {'read_only': True},
+        }
 
 
 class EntitySerializer(serializers.ModelSerializer):

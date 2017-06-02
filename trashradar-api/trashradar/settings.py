@@ -31,6 +31,9 @@ env = environ.Env(
     CONSUMER_SECRET=(str, 'consumerSecret'),
     ACCESS_TOKEN_KEY=(str, 'accessTokenKey'),
     ACCESS_TOKEN_SECRET=(str, 'accessTokenSecret'),
+    CLOUDINARY_CLOUD_NAME=(str, 'cloudName'),
+    CLOUDINARY_API_KEY=(str, 'apiKey'),
+    CLOUDINARY_API_SECRET=(str, 'apiSecret'),
 )
 
 environ.Env.read_env()
@@ -172,6 +175,11 @@ CONSUMER_KEY = env('CONSUMER_KEY')
 CONSUMER_SECRET = env('CONSUMER_SECRET')
 ACCESS_TOKEN_KEY = env('ACCESS_TOKEN_KEY')
 ACCESS_TOKEN_SECRET = env('ACCESS_TOKEN_SECRET')
+
+# Cloudinary credentials
+CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),

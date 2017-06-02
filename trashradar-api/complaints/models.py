@@ -36,7 +36,8 @@ class Complaint(models.Model):
     owner = models.ForeignKey(Account)
     entity = models.ForeignKey(Entity)
     location = PointField()
-    picture = models.ImageField()
+    # URL to image stored in cloudinary
+    picture = models.URLField()
     counter = models.IntegerField(default=0)
     current_state = models.IntegerField(choices=COMPLAINT_STATES, default=1)
     # List of tweet ids sent in the trashradar twitter account using the social_media util

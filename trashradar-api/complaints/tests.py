@@ -1,5 +1,9 @@
 import json
+import mock
+from io import BytesIO
+from PIL import Image
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from faker import Factory as FakerFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,12 +13,40 @@ from complaints.models import Complaint, Entity
 
 faker = FakerFactory.create()
 
+image_buffer = BytesIO()
+test_image = Image.new('RGB', (1, 1))
+test_image.save(image_buffer, 'jpeg')
+image_buffer.seek(0)
+image_string = image_buffer.read()
+
 
 class ComplaintsTestCase(APITestCase):
 
     fixtures = ['complaints', 'entities', 'accounts']
 
-    def test_list_entities_unauthenticated(self):
+    def setUp(self):
+        self.tmp_picture = SimpleUploadedFile(name='logo.jpg', content=image_string, content_type='image/jpeg')
+        self.complaint = {
+            'owner': 1,
+            'entity': 1,
+            'location': 'SRID=4326;POINT (12 11)',
+            'picture': self.tmp_picture,
+            'tweet_status': [1]
+        }
+        self.cloudinary_image = {
+            'public_id': 'x2ojoy5hc4x78y3ida1f', 'version': 1496421068,
+            'signature': '8aa8f1031a19f15023548967ede58b5c7ba94fd2', 'width': 1, 'height': 1,
+            'format': 'jpg', 'resource_type': 'image', 'created_at': '2017-06-02T16:31:08Z',
+            'tags': [], 'bytes': 631, 'type': 'upload', 'etag': '2775f338c469b19c338c4e0ea410271c',
+            'url': 'http://res.cloudinary.com/dsxvepxmc/image/upload/v1496421068/x2ojoy5hc4x78y3ida1f.jpg',
+            'secure_url': 'https://res.cloudinary.com/dsxvepxmc/image/upload/v1496421068/x2ojoy5hc4x78y3ida1f.jpg',
+            'original_filename': 'logo'
+        }
+
+    def tearDown(self):
+        self.tmp_picture.close()
+
+    def test_list_complaints_unauthenticated(self):
         """Fetch all the complaints"""
         response = self.client.get('/api/v1/complaints')
         stored_data = json.loads(response.content.decode('utf-8'))
@@ -26,6 +58,37 @@ class ComplaintsTestCase(APITestCase):
         complaint = Complaint.objects.get(pk=returned_complaint['id'])
 
         self.assertEqual(complaint.counter, returned_complaint['counter'], 'Name does not match')
+
+    def test_create_complaint_unauthenticated(self):
+        """Trying to create a complaint being unauthenticated"""
+        url = '/api/v1/complaints'
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
+                         'response from /api/1/complaints is not 401 Unauthorized.')
+
+    @mock.patch('cloudinary.uploader.upload')
+    def test_create_complaint_authenticated(self, cloudinary_mock):
+        """Creating a complaint being authenticated"""
+        cloudinary_mock.return_value = self.cloudinary_image
+        url = '/api/v1/complaints'
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED,
+                         'response from /api/1/complaints is not 201.')
+
+    @mock.patch('cloudinary.uploader.upload')
+    def test_create_complaint_invalid_cloudinary(self, cloudinary_mock):
+        """Trying to create a complaint being authenticated, but receiving an error from cloudinary"""
+        cloudinary_mock.return_value = {}
+        url = '/api/v1/complaints'
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        response = self.client.post(url, self.complaint)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'response from /api/1/complaints is not 400.')
 
     def test_confirm_place_unauthenticated(self):
         """Trying to confirm a place being unauthenticated"""
@@ -121,8 +184,7 @@ class EntitiesTestCase(APITestCase):
         """Trying to create an entity being unauthenticated"""
         response = self.client.post(
             '/api/v1/entities',
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from /api/1/entities has 401 Unauthorized.')
@@ -134,8 +196,7 @@ class EntitiesTestCase(APITestCase):
 
         response = self.client.post(
             '/api/v1/entities',
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
@@ -146,8 +207,7 @@ class EntitiesTestCase(APITestCase):
         entity = Entity.objects.first()
         response = self.client.put(
             '/api/v1/entities/{}'.format(entity.pk),
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from /api/1/entities has 401 Unauthorized.')
@@ -160,8 +220,7 @@ class EntitiesTestCase(APITestCase):
         entity = Entity.objects.first()
         response = self.client.put(
             '/api/v1/entities/{}'.format(entity.pk),
-            json.dumps(self.entity),
-            content_type='application/json'
+            self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
