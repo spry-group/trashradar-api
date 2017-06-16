@@ -51,7 +51,6 @@ class ComplaintsTestCase(APITestCase):
                 ]
             }),
             'picture': self.tmp_picture,
-            'tweet_status': [1]
         }
         self.cloudinary_image = {
             'public_id': 'x2ojoy5hc4x78y3ida1f', 'version': 1496421068,
@@ -86,10 +85,12 @@ class ComplaintsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from {} is not 401 Unauthorized.'.format(reverse(self.complaint_list_view_name)))
 
+    @mock.patch('utils.tasks.share.share_complaint.delay')
     @mock.patch('cloudinary.uploader.upload')
-    def test_create_complaint_authenticated(self, cloudinary_mock):
+    def test_create_complaint_authenticated(self, cloudinary_mock, share_complaint_mock):
         """Creating a complaint being authenticated"""
         cloudinary_mock.return_value = self.cloudinary_image
+        share_complaint_mock.return_value = 1
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
 
