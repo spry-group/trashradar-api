@@ -100,6 +100,7 @@ class ComplaintsTestCase(APITestCase):
         complaint = Complaint.objects.get(pk=response.data['id'])
         self.assertIn('location', response.data, 'Location is not being returned.')
         location = response.data['location']
+        self.assertIn('http://res.cloudinary.com/', str(response.data['picture']))
         self.assertEqual(type(complaint.location), Point)
         for coordinate in location['coordinates']:
             self.assertIn(coordinate, complaint.location.coords)
@@ -122,6 +123,17 @@ class ComplaintsTestCase(APITestCase):
 
         complaint = self.complaint
         del complaint['location']
+        response = self.client.post(reverse(self.complaint_list_view_name), complaint)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'response from {} is not 400.'.format(reverse(self.complaint_list_view_name)))
+
+    def test_create_complaint_invalid_picture(self):
+        """Trying to create a complaint with an invalid picture"""
+        authenticated_user = Account.objects.get(username='user@trashradar.com')
+        self.client.force_login(authenticated_user)
+
+        complaint = self.complaint
+        complaint['picture'] = 'test'
         response = self.client.post(reverse(self.complaint_list_view_name), complaint)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
                          'response from {} is not 400.'.format(reverse(self.complaint_list_view_name)))
