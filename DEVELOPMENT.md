@@ -11,6 +11,12 @@ initiate a completely new database.
 
 ## Standalone
 
+To build a django standalone container:
+        
+        docker-compose -f docker-compose.yml -f docker-compose.standalone.yml stop django
+        docker-compose -f docker-compose.yml -f docker-compose.standalone.yml rm django
+        docker-compose -f docker-compose.yml -f docker-compose.standalone.yml build django
+
 To run a standalone project you can use inside trashradar-api folder:
  
         docker-compose -f docker-compose.yml -f docker-compose.standalone.yml up
