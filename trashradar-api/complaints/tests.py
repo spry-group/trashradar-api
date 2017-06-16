@@ -5,6 +5,7 @@ from PIL import Image
 from django.contrib.gis.geos import Point
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.urlresolvers import reverse
 from faker import Factory as FakerFactory
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -22,8 +23,20 @@ image_string = image_buffer.read()
 
 
 class ComplaintsTestCase(APITestCase):
-
+    api_version = 'v1'
     fixtures = ['complaints', 'entities', 'accounts']
+
+    @property
+    def complaint_list_view_name(self):
+        return self.api_version + ':complaint-list'
+
+    @property
+    def complaint_confirm_view_name(self):
+        return self.api_version + ':complaint-confirm'
+
+    @property
+    def complaint_clean_view_name(self):
+        return self.api_version + ':complaint-clean'
 
     def setUp(self):
         self.tmp_picture = SimpleUploadedFile(name='logo.jpg', content=image_string, content_type='image/jpeg')
@@ -55,10 +68,11 @@ class ComplaintsTestCase(APITestCase):
 
     def test_list_complaints_unauthenticated(self):
         """Fetch all the complaints"""
-        response = self.client.get('/api/v1/complaints')
+        response = self.client.get(reverse(self.complaint_list_view_name))
         stored_data = json.loads(response.content.decode('utf-8'))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response from /api/1/complaints has 200 Ok.')
+        self.assertEqual(response.status_code, status.HTTP_200_OK,
+                         'response from {} has 200 Ok.'.format(reverse(self.complaint_list_view_name)))
 
         returned_complaint = stored_data['results'][0]
         self.assertIn('id', returned_complaint, 'Id is not present on the result data')
@@ -68,22 +82,20 @@ class ComplaintsTestCase(APITestCase):
 
     def test_create_complaint_unauthenticated(self):
         """Trying to create a complaint being unauthenticated"""
-        url = '/api/v1/complaints'
-        response = self.client.post(url, self.complaint)
+        response = self.client.post(reverse(self.complaint_list_view_name), self.complaint)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/complaints is not 401 Unauthorized.')
+                         'response from {} is not 401 Unauthorized.'.format(reverse(self.complaint_list_view_name)))
 
     @mock.patch('cloudinary.uploader.upload')
     def test_create_complaint_authenticated(self, cloudinary_mock):
         """Creating a complaint being authenticated"""
         cloudinary_mock.return_value = self.cloudinary_image
-        url = '/api/v1/complaints'
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
 
-        response = self.client.post(url, self.complaint)
+        response = self.client.post(reverse(self.complaint_list_view_name), self.complaint)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED,
-                         'response from /api/1/complaints is not 201.')
+                         'response from {} is not 201.'.format(reverse(self.complaint_list_view_name)))
 
         complaint = Complaint.objects.get(pk=response.data['id'])
         self.assertIn('location', response.data, 'Location is not being returned.')
@@ -96,33 +108,32 @@ class ComplaintsTestCase(APITestCase):
     def test_create_complaint_invalid_cloudinary(self, cloudinary_mock):
         """Trying to create a complaint being authenticated, but receiving an error from cloudinary"""
         cloudinary_mock.return_value = {}
-        url = '/api/v1/complaints'
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
 
-        response = self.client.post(url, self.complaint)
+        response = self.client.post(reverse(self.complaint_list_view_name), self.complaint)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-                         'response from /api/1/complaints is not 400.')
+                         'response from {} is not 400.'.format(reverse(self.complaint_list_view_name)))
 
     def test_create_complaint_invalid_point(self):
         """Trying to create a complaint with an invalid point"""
-        url = '/api/v1/complaints'
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
 
         complaint = self.complaint
         del complaint['location']
-        response = self.client.post(url, complaint)
+        response = self.client.post(reverse(self.complaint_list_view_name), complaint)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-                         'response from /api/1/complaints is not 400.')
+                         'response from {} is not 400.'.format(reverse(self.complaint_list_view_name)))
 
     def test_confirm_place_unauthenticated(self):
         """Trying to confirm a place being unauthenticated"""
         complaint = Complaint.objects.first()
-        response = self.client.post('/api/v1/complaints/{}/confirm'.format(complaint.pk))
+        response = self.client.post(reverse(self.complaint_confirm_view_name, kwargs={'pk': complaint.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/complaints is not 401 Unauthorized.')
+                         'response from {} is not 401 Unauthorized.'.format(
+                             reverse(self.complaint_confirm_view_name, kwargs={'pk': complaint.pk})))
 
     def test_confirm_place_authenticated(self):
         """Confirm a place being authenticated"""
@@ -130,10 +141,11 @@ class ComplaintsTestCase(APITestCase):
         self.client.force_login(authenticated_user)
 
         complaint = Complaint.objects.first()
-        response = self.client.post('/api/v1/complaints/{}/confirm'.format(complaint.pk))
+        response = self.client.post(reverse(self.complaint_confirm_view_name, kwargs={'pk': complaint.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT,
-                         'response from /api/1/complaints is not 204 No Content.')
+                         'response from {} is not 204 No Content.'.format(
+                             reverse(self.complaint_confirm_view_name, kwargs={'pk': complaint.pk})))
 
         updated_complaint = Complaint.objects.get(pk=complaint.pk)
         self.assertGreater(updated_complaint.counter, complaint.counter, 'The counter of the complaint is not updated')
@@ -142,10 +154,11 @@ class ComplaintsTestCase(APITestCase):
     def test_clean_place_unauthenticated(self):
         """Trying to clean a place being unauthenticated"""
         complaint = Complaint.objects.first()
-        response = self.client.post('/api/v1/complaints/{}/clean'.format(complaint.pk))
+        response = self.client.post(reverse(self.complaint_clean_view_name, kwargs={'pk': complaint.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/complaints is not 401 Unauthorized.')
+                         'response from {} is not 401 Unauthorized.'.format(
+                             reverse(self.complaint_confirm_view_name, kwargs={'pk': complaint.pk})))
 
     def test_clean_place_authenticated(self):
         """Clean a place being authenticated"""
@@ -153,10 +166,11 @@ class ComplaintsTestCase(APITestCase):
         self.client.force_login(authenticated_user)
 
         complaint = Complaint.objects.first()
-        response = self.client.post('/api/v1/complaints/{}/clean'.format(complaint.pk))
+        response = self.client.post(reverse(self.complaint_clean_view_name, kwargs={'pk': complaint.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT,
-                         'response from /api/1/complaints is not 204 No Content.')
+                         'response from {} is not 204 No Content.'.format(
+                             reverse(self.complaint_clean_view_name, kwargs={'pk': complaint.pk})))
 
         updated_complaint = Complaint.objects.get(pk=complaint.pk)
         self.assertEqual(complaint.counter, updated_complaint.counter, 'The counter of the complaint is different')
@@ -167,7 +181,16 @@ class EntitiesTestCase(APITestCase):
     """
     Entities tests
     """
+    api_version = 'v1'
     fixtures = ['entities', 'accounts']
+
+    @property
+    def entity_list_view_name(self):
+        return self.api_version + ':entity-list'
+
+    @property
+    def entity_detail_view_name(self):
+        return self.api_version + ':entity-detail'
 
     def setUp(self):
         self.entity = {
@@ -179,10 +202,11 @@ class EntitiesTestCase(APITestCase):
 
     def test_list_entities_unauthenticated(self):
         """Fetch all the entities"""
-        response = self.client.get('/api/v1/entities')
+        response = self.client.get(reverse(self.entity_list_view_name))
         stored_data = json.loads(response.content.decode('utf-8'))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response from /api/1/entities has 200 Ok.')
+        self.assertEqual(response.status_code, status.HTTP_200_OK,
+                         'response from {} has 200 Ok.'.format(reverse(self.entity_list_view_name)))
 
         returned_entity = stored_data['results'][0]
         self.assertIn('id', returned_entity, 'Id is not present on the result data')
@@ -196,10 +220,12 @@ class EntitiesTestCase(APITestCase):
     def test_get_entity_unauthenticated(self):
         """Fetch specific entity"""
         entity = Entity.objects.first()
-        response = self.client.get('/api/v1/entities/{}'.format(entity.pk))
+        response = self.client.get(reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk}))
         stored_data = json.loads(response.content.decode('utf-8'))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response from /api/1/entities has 200 Ok.')
+        self.assertEqual(response.status_code, status.HTTP_200_OK,
+                         'response from {} has 200 Ok.'.format(
+                             reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk})))
 
         self.assertEqual(entity.name, stored_data['name'], 'Name does not match')
         self.assertEqual(entity.twitter, stored_data['twitter'], 'Twitter does not match')
@@ -209,11 +235,12 @@ class EntitiesTestCase(APITestCase):
     def test_create_entity_unauthenticated(self):
         """Trying to create an entity being unauthenticated"""
         response = self.client.post(
-            '/api/v1/entities',
+            reverse(self.entity_list_view_name),
             self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/entities has 401 Unauthorized.')
+                         'response from {} has 401 Unauthorized.'.format(
+                             reverse(self.entity_list_view_name)))
 
     def test_create_entity_authenticated(self):
         """Trying to create an entity being authenticated"""
@@ -221,22 +248,24 @@ class EntitiesTestCase(APITestCase):
         self.client.force_login(authenticated_user)
 
         response = self.client.post(
-            '/api/v1/entities',
+            reverse(self.entity_list_view_name),
             self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
-                         'response from /api/1/entities has 403 Forbidden.')
+                         'response from {} has 403 Forbidden.'.format(
+                             reverse(self.entity_list_view_name)))
 
     def test_update_entity_unauthenticated(self):
         """Trying to update an entity being unauthenticated"""
         entity = Entity.objects.first()
         response = self.client.put(
-            '/api/v1/entities/{}'.format(entity.pk),
+            reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk}),
             self.entity
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/entities has 401 Unauthorized.')
+                         'response from {} has 401 Unauthorized.'.format(
+                             reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk})))
 
     def test_update_entity_authenticated(self):
         """Trying to update an entity being authenticated"""
@@ -245,19 +274,21 @@ class EntitiesTestCase(APITestCase):
 
         entity = Entity.objects.first()
         response = self.client.put(
-            '/api/v1/entities/{}'.format(entity.pk),
+            reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk}),
             self.entity
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
-                         'response from /api/1/entities has 403 Forbidden.')
+                         'response from {} has 403 Forbidden.'.format(
+                             reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk})))
 
     def test_delete_entity_unauthenticated(self):
         """Trying to delete an entity being unauthenticated"""
         entity = Entity.objects.first()
-        response = self.client.delete('/api/v1/entities/{}'.format(entity.pk))
+        response = self.client.delete(reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
-                         'response from /api/1/entities has 401 Unauthorized.')
+                         'response from {} has 401 Unauthorized.'.format(
+                             reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk})))
 
     def test_delete_entity_authenticated(self):
         """Trying to delete an entity being authenticated"""
@@ -265,7 +296,8 @@ class EntitiesTestCase(APITestCase):
         self.client.force_login(authenticated_user)
 
         entity = Entity.objects.first()
-        response = self.client.delete('/api/v1/entities/{}'.format(entity.pk))
+        response = self.client.delete(reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN,
-                         'response from /api/1/entities has 403 Forbidden.')
+                         'response from {} has 403 Forbidden.'.format(
+                             reverse(self.entity_detail_view_name, kwargs={'pk': entity.pk})))

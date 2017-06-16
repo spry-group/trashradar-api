@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from accounts.urls import urlpatterns as accounts_urls
+from complaints.urls import router as complaints_router
 
+trashradar_urls = accounts_urls + complaints_router.urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/', include('accounts.urls')),
-    url(r'^api/v1/', include('complaints.urls')),
+    url(r'^api/v1/', include(trashradar_urls, namespace='v1')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
 ]
