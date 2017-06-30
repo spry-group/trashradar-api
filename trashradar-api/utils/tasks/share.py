@@ -17,5 +17,5 @@ def share_complaint(complaint_id):
         complaint.entity.twitter,
         complaint.entity.template_message
     )
-    complaint.tweet_status = twitter.tweet(message)
+    complaint.tweet_status = twitter.tweet(message, complaint.picture)
     complaint.save()
