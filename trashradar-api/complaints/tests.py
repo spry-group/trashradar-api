@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import Account
 from complaints.models import Complaint, Entity
+from utils.tasks.share import share_complaint
 
 faker = FakerFactory.create()
 
@@ -51,7 +52,6 @@ class ComplaintsTestCase(APITestCase):
                 ]
             }),
             'picture': self.tmp_picture,
-            'tweet_status': [1]
         }
         self.cloudinary_image = {
             'public_id': 'x2ojoy5hc4x78y3ida1f', 'version': 1496421068,
@@ -86,10 +86,12 @@ class ComplaintsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED,
                          'response from {} is not 401 Unauthorized.'.format(reverse(self.complaint_list_view_name)))
 
+    @mock.patch('utils.tasks.share.share_complaint.delay')
     @mock.patch('cloudinary.uploader.upload')
-    def test_create_complaint_authenticated(self, cloudinary_mock):
+    def test_create_complaint_authenticated(self, cloudinary_mock, share_complaint_mock):
         """Creating a complaint being authenticated"""
         cloudinary_mock.return_value = self.cloudinary_image
+        share_complaint_mock.return_value = 1
         authenticated_user = Account.objects.get(username='user@trashradar.com')
         self.client.force_login(authenticated_user)
 
@@ -187,6 +189,20 @@ class ComplaintsTestCase(APITestCase):
         updated_complaint = Complaint.objects.get(pk=complaint.pk)
         self.assertEqual(complaint.counter, updated_complaint.counter, 'The counter of the complaint is different')
         self.assertNotEqual(complaint.current_state, 2, 'The state of the complaint should be Clean')
+
+    @mock.patch('utils.social_media.twitter.Twitter.tweet')
+    def test_status_list_success(self, tweet_mock):
+        """
+        tweet() will return an array of successful tweets
+        """
+        tweet_status = [123456, 123457]
+        tweet_mock.return_value = tweet_status
+        complaint = Complaint.objects.first()
+
+        share_complaint(complaint.pk)
+
+        complaint.refresh_from_db()
+        self.assertEqual(complaint.tweet_status, tweet_status)
 
 
 class EntitiesTestCase(APITestCase):

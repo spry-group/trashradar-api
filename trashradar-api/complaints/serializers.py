@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_gis.serializers import GeoModelSerializer
 
 from complaints.models import Complaint, Entity
+from utils.tasks.share import share_complaint
 
 
 class ComplaintSerializer(GeoModelSerializer):
@@ -20,7 +21,7 @@ class ComplaintSerializer(GeoModelSerializer):
     class Meta:
         model = Complaint
         fields = (
-            'id', 'owner', 'location', 'entity', 'picture', 'counter', 'current_state', 'tweet_status'
+            'id', 'owner', 'location', 'entity', 'picture', 'counter', 'current_state'
         )
         extra_kwargs = {
             'picture': {'read_only': True},
@@ -34,7 +35,9 @@ class ComplaintSerializer(GeoModelSerializer):
             raise ValidationError({'picture': 'Image was not uploaded to cloudinary.'})
 
         validated_data['picture'] = url
-        return super(ComplaintSerializer, self).create(validated_data)
+        complaint = super(ComplaintSerializer, self).create(validated_data)
+        share_complaint.delay(complaint.pk)
+        return complaint
 
     def validate(self, data):
         request = self.context.get('request')
