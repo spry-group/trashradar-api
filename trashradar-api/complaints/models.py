@@ -41,6 +41,6 @@ class Complaint(models.Model):
     counter = models.IntegerField(default=0)
     current_state = models.IntegerField(choices=COMPLAINT_STATES, default=1)
     # List of tweet ids sent in the trashradar twitter account using the social_media util
-    tweet_status = ArrayField(models.IntegerField(), blank=True, null=True)
+    tweet_status = ArrayField(models.BigIntegerField(), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
