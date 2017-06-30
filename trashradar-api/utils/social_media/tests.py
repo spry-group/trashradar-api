@@ -39,3 +39,17 @@ class TwitterTest(unittest.TestCase):
             '"Select all" and archive your Gmail inbox. The page loads so much faster!'
         )
         self.assertGreater(len(response), 1, 'The response array has less or equal than one status')
+
+    @mock.patch('twitter.Api.PostUpdate')
+    def test_status_with_image(self, twitter_mock):
+        """
+        If the tweet has an image url should return the status
+        """
+        twitter_mock.return_value = self.status
+        status_list = [self.status.id]
+
+        response = self.twitter.tweet(
+            '"Select all" and archive your Gmail inbox. The page loads so much faster!',
+            media='https://google.com'
+        )
+        self.assertEqual(status_list, response, 'The status response is different')
