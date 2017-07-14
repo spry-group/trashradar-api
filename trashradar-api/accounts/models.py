@@ -63,8 +63,8 @@ class Account(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
     """
     email = models.EmailField(max_length=100, unique=True)
     username = models.CharField(max_length=100, unique=True)
-    full_name = models.CharField(max_length=200)
-    phone = models.CharField(max_length=20)
+    full_name = models.CharField(max_length=200, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(null=True)
     is_active = models.BooleanField(default=False)
