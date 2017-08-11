@@ -1,4 +1,6 @@
 # Trashradar-api
+[![CircleCI](https://circleci.com/gh/spry-group/trashradar-api.svg?style=shield)](https://circleci.com/gh/spry-group/trashradar-api)
+
 The api to let your public servants and community know where there is cleaning to be done.
 
 ## Problem
@@ -51,3 +53,27 @@ stopping the environment.
 
 The data volume for postgres is persistent. You will need to remove the volume use `docker volume rm` if you want to 
 initiate a completely new database.
+
+# Seed Data
+
+Run `python manage.py loaddata trashradar/fixtures/test_data.json`.
+
+## Users
+
+The password for all seed users is `trashradar`.
+
+* superuser@domain.com
+
+  super users have full access to all features of django.
+
+* staff@domain.com
+
+  TODO: document what staff access means.
+
+* userA@domain.com
+
+  a verified user.
+
+* userB@domain.com
+
+  a verified user.
