@@ -1,0 +1,119 @@
+[{
+    "model": "accounts.account",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$30000$oNkMofCxhYVk$hTHOb1+QtpWMMV2QG3YKFz4CFM7tZ3W0ebbpjV/eMmw=",
+        "last_login": null,
+        "is_superuser": false,
+        "email": "userA@domain.com",
+        "username": "userA@domain.com",
+        "full_name": "User A",
+        "phone": null,
+        "activation_key": "",
+        "key_expires": null,
+        "is_active": true,
+        "is_verified": true,
+        "is_staff": false,
+        "created_at": "2017-08-11T21:15:52.404Z",
+        "updated_at": "2017-08-11T21:15:52.404Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "accounts.account",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$30000$oNkMofCxhYVk$hTHOb1+QtpWMMV2QG3YKFz4CFM7tZ3W0ebbpjV/eMmw=",
+        "last_login": null,
+        "is_superuser": false,
+        "email": "userB@domail.com",
+        "username": "userB@domain.com",
+        "full_name": "User B",
+        "phone": null,
+        "activation_key": "",
+        "key_expires": null,
+        "is_active": true,
+        "is_verified": true,
+        "is_staff": false,
+        "created_at": "2017-08-11T21:16:23.637Z",
+        "updated_at": "2017-08-11T21:16:23.637Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "accounts.account",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$30000$oNkMofCxhYVk$hTHOb1+QtpWMMV2QG3YKFz4CFM7tZ3W0ebbpjV/eMmw=",
+        "last_login": null,
+        "is_superuser": true,
+        "email": "superuser@domain.com",
+        "username": "superuser@domain.com",
+        "full_name": "Super User",
+        "phone": null,
+        "activation_key": "",
+        "key_expires": null,
+        "is_active": true,
+        "is_verified": true,
+        "is_staff": true,
+        "created_at": "2017-08-11T21:17:08.525Z",
+        "updated_at": "2017-08-11T21:17:08.525Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "accounts.account",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$30000$oNkMofCxhYVk$hTHOb1+QtpWMMV2QG3YKFz4CFM7tZ3W0ebbpjV/eMmw=",
+        "last_login": null,
+        "is_superuser": false,
+        "email": "staff@domain.com",
+        "username": "staff@domain.com",
+        "full_name": "Staffer Staff",
+        "phone": null,
+        "activation_key": "",
+        "key_expires": null,
+        "is_active": true,
+        "is_verified": true,
+        "is_staff": true,
+        "created_at": "2017-08-11T21:17:52.124Z",
+        "updated_at": "2017-08-11T21:17:52.124Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "complaints.entity",
+    "pk": 1,
+    "fields": {
+        "name": "Basurita INC",
+        "twitter": "basurita_inc",
+        "phone": "",
+        "template_message": "Hi, there is trash in",
+        "created": "2017-05-05T15:23:24.047Z"
+    }
+}, {
+    "model": "complaints.entity",
+    "pk": 2,
+    "fields": {
+        "name": "Garbage INC",
+        "twitter": "garbage",
+        "phone": "",
+        "template_message": "I saw garbage in",
+        "created": "2017-05-19T15:02:19.762Z"
+    }
+}, {
+    "model": "complaints.complaint",
+    "pk": 1,
+    "fields": {
+        "owner": 4,
+        "entity": 1,
+        "location": "SRID=4326;POINT (-0.16106 -78.48749579999999)",
+        "picture": "http://res.cloudinary.com/dsxvepxmc/image/upload/v1502486972/g5y94orbo28zvfv1uppt.png",
+        "counter": 0,
+        "current_state": 1,
+        "tweet_status": null,
+        "created_at": "2017-08-11T21:29:33.249Z",
+        "updated_at": "2017-08-11T21:29:33.249Z"
+    }
+}]
